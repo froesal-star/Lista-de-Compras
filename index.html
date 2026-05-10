@@ -159,7 +159,7 @@ header{background:var(--white);padding:env(safe-area-inset-top,16px) 18px 0;bord
       <div class="add-box-title">Adicionar item</div>
       <div class="add-row">
         <input class="add-input" type="text" id="inp-nome" placeholder="Ex: Leite, Arroz, Sabão..." autocomplete="off"/>
-        <button class="add-btn" onclick="addItem()">+</button>
+        <button class="add-btn" id="add-btn">+</button>
       </div>
     </div>
 
@@ -286,6 +286,11 @@ function clearAll(){
 }
 
 document.getElementById("inp-nome").addEventListener("keydown",e=>{if(e.key==="Enter")addItem()});
+
+// Compatível com mobile (touch)
+const addBtn=document.getElementById("add-btn");
+addBtn.addEventListener("touchend",function(e){e.preventDefault();addItem()});
+addBtn.addEventListener("click",function(e){addItem()});
 </script>
 </body>
 </html>
