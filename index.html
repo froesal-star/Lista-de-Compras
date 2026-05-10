@@ -207,8 +207,9 @@ setTimeout(()=>{if(!window._fbReady)document.getElementById("loader").innerHTML=
 
 // ── DATA ──
 function arr(){return Object.entries(DB).map(([k,v])=>({...v,_key:k}))}
-function pending(){return arr().filter(i=>!i.done).sort((a,b)=>(orderMap[a._key]??a.ts??0)-(orderMap[b._key]??b.ts??0))}
-function done(){return arr().filter(i=>i.done).sort((a,b)=>a.doneAt-b.doneAt)}
+function isDone(i){return i.done===true||i.done==="true"||i.done===1}
+function pending(){return arr().filter(i=>!isDone(i)).sort((a,b)=>(orderMap[a._key]??a.ts??0)-(orderMap[b._key]??b.ts??0))}
+function done(){return arr().filter(i=>isDone(i)).sort((a,b)=>a.doneAt-b.doneAt)}
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 
 function promptNome(){
@@ -226,22 +227,23 @@ function render(){
   document.getElementById("prog-lbl").textContent=pct+"% concluído";
 
   const pl=document.getElementById("pending-list");
-  pl.innerHTML=p.length===0
+      pl.innerHTML=p.length===0
     ?`<div class="empty"><div class="empty-ico">${total===0?"🛒":"🎉"}</div><div class="empty-txt">${total===0?"Lista vazia!<br>Adicione itens acima.":"Tudo no carrinho!<br>Boas compras! 🛒"}</div></div>`
-    :p.map(card).join("");
+    :p.map(i=>card(i)).join("");
 
   const dw=document.getElementById("done-wrap");
   const dl=document.getElementById("done-list");
   if(d.length===0){dw.style.display="none"}
-  else{dw.style.display="block";dl.innerHTML=d.map(i=>card(i,true)).join("")}
+  else{dw.style.display="block";dl.innerHTML=d.map(i=>card(i)).join("")}
 
   initDrag();
 }
 
-function card(item,isDone=false){
-  return`<div class="item-card${isDone?" done":""}" data-key="${item._key}">
+function card(item){
+  const done=isDone(item);
+  return`<div class="item-card${done?" done":""}" data-key="${item._key}">
     <div class="handle" data-handle="${item._key}"><span></span><span></span><span></span></div>
-    <div class="chk${isDone?" on":""}" data-toggle="${item._key}" data-done="${isDone}"><span class="chk-ico">✓</span></div>
+    <div class="chk${done?" on":""}" data-toggle="${item._key}" data-done="${done}"><span class="chk-ico">✓</span></div>
     <div class="item-info">
       <div class="item-name">${esc(item.nome)}</div>
       ${item.quem?`<span class="who">👤 ${esc(item.quem)}</span>`:""}
